@@ -2,6 +2,7 @@ import express, {Response, Request} from "express";
 import {genSalt, hash, compare} from "bcrypt" 
 import { PrismaClient } from "@prisma/client";
 import { JwtPayload, sign } from "jsonwebtoken";
+import { error } from "console";
 
 type User ={
     email : String;
@@ -16,7 +17,7 @@ const prisma = new PrismaClient();
 
 export async function register (req: Request, res : Response){
     try{
-        const {name, email , password} = req.body
+        const {name, email , password, role} = req.body
 
         const finduser = await prisma.user.findFirst({
             where :{
@@ -40,6 +41,7 @@ export async function register (req: Request, res : Response){
                     name : name,
                     email : email,
                     password : hashedPass,
+                    role : role,
                     created_at : new Date()
                 }
             }
@@ -62,8 +64,7 @@ export async function register (req: Request, res : Response){
 export async function login( req : Request, res :Response){
 
     try{
-        const {email , password} = req.body
-
+        const {email, password} = req.body
         const finduser = await prisma.user.findFirst({
             where :{
                 email: email
@@ -71,8 +72,13 @@ export async function login( req : Request, res :Response){
         })
         if (!finduser){
             return res.status(404).send({
-                message : "Invalid email or password",
-                data : {}
+                error :{
+                message : "Invalid email",
+                data : {
+                    email :email,
+                    password : password
+                }
+            }
             })
             
         }
@@ -80,8 +86,13 @@ export async function login( req : Request, res :Response){
 
         if (!isValidUser){
             return res.status(404).send({
-                message : "Invalid email or password",
-                data : {}
+                error :{
+                message : "Invalid password",
+                data : {
+                    password : password,
+                    finduserpassword : finduser.password
+                }
+            }
             })
         }
         const jwtpayload = {email : email, role : finduser.role};
@@ -92,12 +103,17 @@ export async function login( req : Request, res :Response){
             message : "OK",
             data : finduser, 
             token :token
+            
         })
 
     }catch(err){
+        const {email , password} = req.query
         return res.status(500).send({
+            error :{
             message :JSON.stringify(err),
-            data : []
+            data : JSON.stringify(req.body)
+    
+        }
         })
 
     }

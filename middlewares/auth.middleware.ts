@@ -32,8 +32,11 @@ export const verifyToken =async( req : Request, res : Response, next : NextFunct
 }
 export const adminGuard = async( req : Request, res : Response, next : NextFunction)=>{
     try{
-        if(req.user?.role ! == "admin"){
-            return res.status(401).send("Unauthorized");
+        if(req.user?.role != "admin"){
+            return res.status(401).send({
+                msg :"Unauthorized",
+                role : req.user?.role
+        });
 
         }
         next();

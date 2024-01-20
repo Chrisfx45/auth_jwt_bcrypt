@@ -2,6 +2,7 @@ import express, {Application, Request, Response} from "express"
 import authRouter from "./routers/auth.router"
 import PRouter from "./routers/product.router"
 import cors from "cors"
+import eventRouter from "./routers/event.router"
 
 const app : Application = express ()
 
@@ -12,6 +13,7 @@ app.use(express.urlencoded({extended :false}))
 app.use(express.json())
 
 app.use("/api/auth", authRouter)
+app.use("/api/event", eventRouter)
 app.use("/api/product", PRouter)
 
 app.get("/api/", (req : Request, res : Response)=> {
