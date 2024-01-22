@@ -40,6 +40,7 @@ model Transaction{
   buyerId Int
   eventbought Event @relation(fields: [eventId], references: [id])
   eventId Int
+  amount Int
   points Int
   money Int
   total Int

@@ -69,6 +69,10 @@ export async function login( req : Request, res :Response){
             where :{
                 email: email
             },
+            include :{
+                transaction :true,
+                eventcreate :true
+            }
         })
         if (!finduser){
             return res.status(404).send({
